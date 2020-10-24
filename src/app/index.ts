@@ -1,14 +1,31 @@
 import {Users} from "../modules/Users/";
 import {Exceptions} from "../modules/Exceptions";
+import {Mongo} from "../modules/Common/Mongo";
+import {env} from "../env";
 
   // Send these logical parts
   // to appropriate files later
 
-  //////////////////////
-  //                  //
-  //    Exceptions    //
-  //                  //
-  //////////////////////
+
+    /////////////////////
+    //                 //
+    //     MongoDB     //
+    //                 //
+    /////////////////////
+
+
+const mongoClient = new Mongo.Client({
+  url: env.db.url
+});
+mongoClient.listen();
+
+
+    //////////////////////
+    //                  //
+    //    Exceptions    //
+    //                  //
+    //////////////////////
+
 
 export interface IException extends Exceptions.IDefaultException {}
 
@@ -27,11 +44,13 @@ export const exceptionsModule = new Exceptions.Module<IException>({
   },
 });
 
-  /////////////////////
-  //                 //
-  //    User part    //
-  //                 //
-  /////////////////////
+
+    /////////////////////
+    //                 //
+    //    User part    //
+    //                 //
+    /////////////////////
+
 
 export interface IUser extends Users.IDefaultUser {}
 
