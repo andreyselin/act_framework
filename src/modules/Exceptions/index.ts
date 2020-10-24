@@ -1,25 +1,45 @@
-// This is common module, other modules expect it to always exist
-
-
-import {IException} from "./ExceptionModel";
-
-class ExceptionService {
-
-  constructor(){
+export namespace Exceptions {
+  export interface IConfig<_IException> {
+    defaultException: _IException;
+    create: (...args) => _IException;
+    check: (input: any) => false | _IException;
   }
 
-  drawException(id: string, data): IException {
-    const result: IException = {
-      status: 10001,
-      message: `Auth exception: ${ id }`,
-      data
+  export interface IModule<_IException> {
+    defaultException: _IException;
+    create: (...args) => _IException
+    check: (input: any) => false | _IException
+  }
+
+  export interface IDefaultException {
+    status: number;
+    message?: string;
+    data?: any;
+  }
+
+
+  export class Module<_IException> implements IModule<_IException> {
+
+    constructor({create, check, defaultException}: IConfig<_IException>) {
+      this.create = create;
+      this.check = check;
+      this.defaultException = defaultException;
+    }
+
+    defaultException: _IException;
+
+    create(id: string, data):_IException {
+      // const result: IException = {
+      //   status: 10001,
+      //   message: `Auth exception: ${ id }`,
+      //   data
+      // };
+      return this.defaultException;
     };
-    // this.logger.info(result);
-    return result;
-  };
 
-  isException(input:any): boolean {
-    return input?.status === 10001;
+    check(input:any): false | _IException {
+      return false;
+    }
+
   }
-
 }
