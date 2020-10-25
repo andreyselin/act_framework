@@ -2,6 +2,7 @@ import {Mongo} from "../modules/Common/Mongo";
 import {env} from "../env";
 import {initExceptionsModule} from "../models/ExceptionModel";
 import {initUsersModule} from "../models/UserModel";
+import {runExpress} from "../servers/express";
 
     // Declare modules
     // Hope they dont require mongo client started before
@@ -26,6 +27,5 @@ export async function startApp() {
   await mongoClient.listen();
 
   // Only now, after mongo started, start express
-
-
+  runExpress();
 }
