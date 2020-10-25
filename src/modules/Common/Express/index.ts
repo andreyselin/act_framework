@@ -1,5 +1,4 @@
 import express, { Request, Response } from 'express';
-const app = express();
 
 
 export namespace Express {
@@ -14,6 +13,17 @@ export namespace Express {
 
   export type TInternalController<_IUser> = (user: _IUser, params) => Promise<IControllerResponse>
 
+
+    //////////////////
+    //              //
+    //    Module    //
+    //              //
+    //////////////////
+
+
+  const app = express();
+  app.use(express.json()); // for parsing application/json
+  app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
   export class Module {
 
