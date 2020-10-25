@@ -1,10 +1,12 @@
 import {Request, Response} from 'express';
 import {IUser} from "./UserModel";
 
-
-export type TExternalController = (req: Request, res: Response) => any
-
-export interface InternalRequest extends Request{
-  user: IUser;
+interface IControllerResponse {
+  status: number;
+  message?: string;
+  data: any;
 }
-export type TInternalController = (req: InternalRequest, res: Response) => any
+
+export type TExternalController = (params) => Promise<IControllerResponse>
+
+// export type TInternalController = (user: IUser, params) => Promise<IControllerResponse>

@@ -13,8 +13,8 @@ export namespace Exceptions {
 
   export interface IDefaultException {
     status: number;
+    data: any;
     message?: string;
-    data?: any;
   }
 
 

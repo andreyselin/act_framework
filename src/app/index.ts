@@ -1,19 +1,25 @@
 import {Mongo} from "../modules/Common/Mongo";
 import {env} from "../env";
-import {initExceptionsModule} from "../models/ExceptionModel";
-import {initUsersModule} from "../models/UserModel";
+import {IException, initExceptionsModule} from "../models/ExceptionModel";
+import {initUsersModule, IUser} from "../models/UserModel";
 import {runExpress} from "../servers/express";
+import {Auth} from "../modules/Auth";
+import {Emails} from "../modules/Emails";
 
     // Declare modules
     // Hope they dont require mongo client started before
     // setting up mongo entities
 
 const exceptions = initExceptionsModule();
+const emails = new Emails.Module<IException>({ exceptions });
 const users = initUsersModule(exceptions);
+const auth = new Auth.Module<IUser, IException>({ exceptions, users, emails });
 
 export const app = {
   exceptions,
-  users
+  emails,
+  users,
+  auth
 };
 
     // Async stuff required

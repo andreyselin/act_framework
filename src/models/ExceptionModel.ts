@@ -5,6 +5,7 @@ export interface IException extends Exceptions.IDefaultException {}
 export const initExceptionsModule = () => {
   const defaultException: IException = {
     status: 10001,
+    data: null,
     message: `Default exception`
   };
   return new Exceptions.Module<IException>({

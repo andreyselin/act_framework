@@ -3,8 +3,6 @@ import {IException} from "./ExceptionModel";
 
 export interface IUser extends Users.IDefaultUser {}
 
-
-
 export const initUsersModule = (exceptionsModule):Users.IModule<IUser, IException> => {
   const schemaConfig = {
     ...Users.defaultUserSchemaConfig
