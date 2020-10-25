@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import {IUser} from "../app";
+import {IUser} from "./UserModel";
 
 
 export type TExternalController = (req: Request, res: Response) => any

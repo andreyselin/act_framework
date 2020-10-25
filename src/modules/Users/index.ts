@@ -6,7 +6,7 @@ export namespace Users {
 
   export interface IModule<_IUser, _IException> {
     exceptionsModule: Expecteds.IExceptionsModule<_IException>;
-    create:  (params: { user: _IUser, config?: any }) => Promise<_IUser | _IException>;
+    create:  (params: { user?: _IUser, config?: any }) => Promise<_IUser | _IException>;
     getById: (_id: string) => Promise<_IUser | _IException>;
   }
 

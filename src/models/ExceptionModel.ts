@@ -2,7 +2,7 @@ import {Exceptions} from "../modules/Exceptions";
 
 export interface IException extends Exceptions.IDefaultException {}
 
-export const initExceptionModule = () => {
+export const initExceptionsModule = () => {
   const defaultException: IException = {
     status: 10001,
     message: `Default exception`
