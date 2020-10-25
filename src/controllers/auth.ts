@@ -1,13 +1,13 @@
-import {TExternalController} from "../models/AppModel";
 import {app} from "../app";
 import {IException} from "../models/ExceptionModel";
+import {Express} from "../modules/Common/Express";
 
-export const requestSignInController: TExternalController = async (params) => {
+export const requestSignInController: Express.TExternalController = async (params) => {
   const { authType, authId } = params;
 
   const sendCodeResult = await app.auth.requestSignIn({ authType, authId });
   if (app.exceptions.check(sendCodeResult)) {
-    return sendCodeResult as IException;
+    throw sendCodeResult as IException;
   }
 
   return {
@@ -16,7 +16,7 @@ export const requestSignInController: TExternalController = async (params) => {
   };
 };
 
-export const submitAuthController: TExternalController = async (params) => {
+export const submitAuthController: Express.TExternalController = async (params) => {
   return {
     status: 0,
     data: null

@@ -2,9 +2,10 @@ import {Mongo} from "../modules/Common/Mongo";
 import {env} from "../env";
 import {IException, initExceptionsModule} from "../models/ExceptionModel";
 import {initUsersModule, IUser} from "../models/UserModel";
-import {runExpress} from "../servers/express";
 import {Auth} from "../modules/Auth";
 import {Emails} from "../modules/Emails";
+import {Express} from "../modules/Common/Express";
+import {initExpressControllers} from "../controllers";
 
     // Declare modules
     // Hope they dont require mongo client started before
@@ -14,12 +15,16 @@ const exceptions = initExceptionsModule();
 const emails = new Emails.Module<IException>({ exceptions });
 const users = initUsersModule(exceptions);
 const auth = new Auth.Module<IUser, IException>({ exceptions, users, emails });
+const mongo = new Mongo.Client({ url: env.db.url });
+const express = new Express.Module({ port: env.express.port });
 
 export const app = {
   exceptions,
   emails,
   users,
-  auth
+  auth,
+  mongo,
+  express
 };
 
     // Async stuff required
@@ -27,11 +32,8 @@ export const app = {
     // only then operate
 
 export async function startApp() {
-  const mongoClient = new Mongo.Client({
-    url: env.db.url
-  });
-  await mongoClient.listen();
-
+  await app.mongo.listen();
   // Only now, after mongo started, start express
-  runExpress();
+  initExpressControllers();
+  app.express.listen();
 }
