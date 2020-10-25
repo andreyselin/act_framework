@@ -1,5 +1,10 @@
-import {userModule} from "../app";
+import {startApp, userModule} from "../app";
 
-const user = userModule.create({});
+const tmp = async ()=>{
+  await startApp();
+  const user = await userModule.create({});
+  console.log('user', user);
+};
 
-console.log('user', user);
+tmp();
+
