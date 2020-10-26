@@ -42,7 +42,7 @@ export namespace Users {
       this.updatedAt = now;
       next();
     });
-    return model<_IUser, IUserModel>('User', UserSchema);
+    return model<_IUser, IUserModel>('user', UserSchema);
   }
 
   //////////////////

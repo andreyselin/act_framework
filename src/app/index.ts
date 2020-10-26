@@ -7,9 +7,10 @@ import {Emails} from "../modules/Emails";
 import {Express} from "../modules/Common/Express";
 import {initExpressControllers} from "../controllers";
 import {Sessions} from "../modules/Sessions";
+import {initSubscriptionModule} from "../models/SubscriptionModel";
 
     // Declare modules
-    // Hope they dont require mongo client started before
+    // They dont require mongo client started before
     // setting up mongo entities
 
 const exceptions = initExceptionsModule();
@@ -19,6 +20,7 @@ const auth = new Auth.Module<IUser, IException>({ exceptions, users, emails });
 const sessions = new Sessions.Module<IUser, IException>({users, exceptions});
 const mongo = new Mongo.Client({ url: env.db.url });
 const express = new Express.Module<IUser, IException>({ port: env.express.port, sessions, exceptions });
+const subscriptions = initSubscriptionModule(exceptions);
 
 export const app = {
   exceptions,
@@ -27,12 +29,13 @@ export const app = {
   auth,
   sessions,
   mongo,
-  express
+  express,
+  subscriptions
 };
 
     // Async stuff required
     // to start app and
-    // only then operate
+    // ONLY THEN operate
 
 export async function startApp() {
   await app.mongo.listen();

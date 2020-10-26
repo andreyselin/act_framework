@@ -1,6 +1,7 @@
 import {Document, Model, model, Schema} from "mongoose";
 import shortid from 'shortid';
 import {Users} from "./";
+import {preSaveHook} from "../../utilities/mongo";
 
 
 export const defaultUserSchemaConfig = {
@@ -16,13 +17,6 @@ export const defaultUserSchemaConfig = {
 export function prepareUserInMongo<_IUser extends Users.IDefaultUser>(schemaConfig: any): Model<_IUser> {
   interface IUserModel extends Model<_IUser> {}
   const UserSchema: Schema = new Schema(schemaConfig);
-  UserSchema.pre<_IUser>('save', function(next) {
-    const now = new Date();
-    if (!this.createdAt) {
-      this.createdAt = now;
-    }
-    this.updatedAt = now;
-    next();
-  });
+  UserSchema.pre<_IUser>('save', preSaveHook);
   return model<_IUser, IUserModel>('User', UserSchema);
 }

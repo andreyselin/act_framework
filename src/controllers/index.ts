@@ -13,6 +13,6 @@ export const initExpressControllers = () => {
   app.express.addExternalController('post',  '/dev/ping',        pingController);
 
   // Server
-  app.express.addInternalController('post',  '/sign-in/submit',  getConnectionInfoController);
+  app.express.addInternalController('get',  '/connection/getInfo',  getConnectionInfoController);
 
 };
