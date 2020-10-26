@@ -4,7 +4,8 @@ import {Document, model, Model, Schema} from "mongoose";
 
 export namespace Sessions {
 
-  interface IConfig<_IException> {
+  interface IConfig<_IUser, _IException> {
+    users: Expecteds.IUserModule<_IUser, _IException>;
     exceptions: Expecteds.IExceptionsModule<_IException>;
   }
 
@@ -45,11 +46,13 @@ export namespace Sessions {
 
 
 
-  export class Module<_IException> {
+  export class Module<_IUser, _IException> {
 
+    users: Expecteds.IUserModule<_IUser, _IException>;
     exceptions: Expecteds.IExceptionsModule<_IException>;
 
-    constructor({exceptions}: IConfig<_IException>) {
+    constructor({users, exceptions}: IConfig<_IUser, _IException>) {
+      this.users = users;
       this.exceptions = exceptions;
     }
 
@@ -71,7 +74,10 @@ export namespace Sessions {
     }
 
     // Checking
-    static async getUserIdIfTokenIsActive (token: string): Promise<string | null> {
+    async getUserIfTokenIsActive (token: string | null): Promise<_IUser | _IException> {
+      if (!token) {
+        return this.exceptions.defaultException;
+      }
       const updatedAt = {
         // $gt: new Date(new Date().getTime() - 1000 * 60 * 18)
         $gt: new Date(new Date().getTime() - sessionConstants.aliveTime)
@@ -79,7 +85,14 @@ export namespace Sessions {
       const session = await AuthSession.findOneAndUpdate(
         { token, updatedAt },
         { updatedAt: new Date() });
-      return session ? session.userId : null;
+
+      if (!session) {
+        return this.exceptions.create('Sessions.module.getUser.sessionNotFound', {token});
+      }
+
+      const user = await this.users.getById(session.userId);
+
+      return user; // as _IUser and _IException;
     }
 
   }

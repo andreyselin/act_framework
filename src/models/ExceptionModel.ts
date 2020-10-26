@@ -8,6 +8,7 @@ export const initExceptionsModule = () => {
     data: null,
     message: `Default exception`
   };
+
   return new Exceptions.Module<IException>({
     defaultException,
     create: function (id, data) {

@@ -16,9 +16,9 @@ const exceptions = initExceptionsModule();
 const emails = new Emails.Module<IException>({ exceptions });
 const users = initUsersModule(exceptions);
 const auth = new Auth.Module<IUser, IException>({ exceptions, users, emails });
-const sessions = new Sessions.Module<IException>({exceptions});
+const sessions = new Sessions.Module<IUser, IException>({users, exceptions});
 const mongo = new Mongo.Client({ url: env.db.url });
-const express = new Express.Module({ port: env.express.port });
+const express = new Express.Module<IUser, IException>({ port: env.express.port, sessions, exceptions });
 
 export const app = {
   exceptions,
