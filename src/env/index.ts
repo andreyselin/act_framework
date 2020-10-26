@@ -3,6 +3,6 @@ export const env = {
     url: 'mongodb://localhost/my_db'
   },
   express: {
-    port: 3000
+    port: 3001
   }
 };

@@ -38,7 +38,9 @@ export namespace Express {
       path: string,
       controller: TExternalController
     ) {
+      console.log({method, path});
       app[method](path, async (req: Request, res: Response) => {
+        console.log('called');
         try {
           const params = method === 'get' ? req.query : req.body;
           const result = await controller(params);

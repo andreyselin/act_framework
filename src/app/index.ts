@@ -6,6 +6,7 @@ import {Auth} from "../modules/Auth";
 import {Emails} from "../modules/Emails";
 import {Express} from "../modules/Common/Express";
 import {initExpressControllers} from "../controllers";
+import {Sessions} from "../modules/Sessions";
 
     // Declare modules
     // Hope they dont require mongo client started before
@@ -15,6 +16,7 @@ const exceptions = initExceptionsModule();
 const emails = new Emails.Module<IException>({ exceptions });
 const users = initUsersModule(exceptions);
 const auth = new Auth.Module<IUser, IException>({ exceptions, users, emails });
+const sessions = new Sessions.Module<IException>({exceptions});
 const mongo = new Mongo.Client({ url: env.db.url });
 const express = new Express.Module({ port: env.express.port });
 
@@ -23,6 +25,7 @@ export const app = {
   emails,
   users,
   auth,
+  sessions,
   mongo,
   express
 };

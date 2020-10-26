@@ -94,6 +94,7 @@ export namespace Auth {
       try {
 
         // Validate authType first and that authId is of proper format
+        // Probably better to move this to sendCodeMethod?
         if (!this.validateAuthData(authType, authId)) {
           return this.exceptions.create('qerbrt', { authType, authId });
         }
