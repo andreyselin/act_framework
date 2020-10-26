@@ -1,7 +1,7 @@
 import {Expecteds} from "../Common/Expecteds";
 import {Document, model, Model, Schema} from "mongoose";
 import shortid from 'shortid';
-import {addDaysMutable} from "../../utilities";
+import {addHoursMutable} from "../../utilities";
 
 export namespace Subscriptions {
 
@@ -50,7 +50,7 @@ export namespace Subscriptions {
   }
 
   export interface ISubscriptionParams {
-    days: number; // Use 0 for inactive initial subscription
+    hours: number; // Use 0 for inactive initial subscription
     data: any; // Data to assign to Subscription
   }
 
@@ -90,11 +90,11 @@ export namespace Subscriptions {
     }
 
     async subscribe(userId: string, subscriptionParams: ISubscriptionParams) {
-      const subscribedTo = addDaysMutable(new Date(), subscriptionParams.days);
+      const subscribedTo = addHoursMutable(new Date(), subscriptionParams.hours);
       console.log('subscribe', {
         subscribedTo,
         now: new Date(),
-        days: subscriptionParams.days
+        hours: subscriptionParams.hours
       });
       const newSubscription = new Subscription({
         userId,

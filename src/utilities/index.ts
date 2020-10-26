@@ -1,6 +1,8 @@
 
 // Pass only new dates, created for this function here
-export const addDaysMutable = (inputDate: Date, days: number) => {
-  inputDate.setDate(inputDate.getDate() + days);
+export const addHoursMutable = (inputDate: Date, hours: number) => {
+  inputDate.setHours(inputDate.getHours() + hours);
   return inputDate;
 };
+
+export const hoursFromDays = (days: number) => days * 24;
