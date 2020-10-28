@@ -1,21 +1,14 @@
 import {Exceptions} from "../modules/Exceptions";
 
-export interface IException extends Exceptions.IDefaultException {}
+// Should not be exported, everything through modules only
+interface IException extends Exceptions.Default.IException {}
 
-export const initExceptionsModule = () => {
-  const defaultException: IException = {
-    status: 10001,
-    data: null,
-    message: `Default exception`
-  };
+type TExceptionKey = Exceptions.Default.TExceptionKey; // | 'blalba' | '...'
 
-  return new Exceptions.Module<IException>({
-    defaultException,
-    create: function (id, data) {
-      return defaultException;
-    },
-    check: function (input) {
-      return input === defaultException ? input : false;
-    },
-  });
+const exceptions: Exceptions.IExceptionsList<TExceptionKey, IException> = {
+  ... Exceptions.Default.exceptions
+};
+
+export const initExceptionsModule = (monitoring) => {
+  return new Exceptions.Module({ exceptions, monitoring });
 };

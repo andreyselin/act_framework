@@ -1,44 +1,100 @@
+import {Expecteds} from "../Common/Expecteds";
+
 export namespace Exceptions {
-  export interface IConfig<_IException> {
-    defaultException: _IException;
-    create: (...args) => _IException;
-    check: (input: any) => false | _IException;
+
+
+      ////////////////////
+      //                //
+      //    Defaults    //
+      //                //
+      ////////////////////
+
+
+  export namespace Default {
+    export interface IException {
+      status: number;
+      key: string;
+      data: any;
+    }
+    export type TExceptionKey
+      = 'general'
+      | 'wrongParams'
+      | 'notAllowed'
+      | 'notFound';
+
+    export const exceptions: IExceptionsList<TExceptionKey, IException> = {
+      general:       data => ({ status: 10001,   key: 'general',        data }),
+      notAllowed:    data => ({ status: 10002,   key: 'notAllowed',     data }),
+      wrongParams:   data => ({ status: 10003,   key: 'wrongParams',    data }),
+      notFound:      data => ({ status: 10004,   key: 'notFound',       data }),
+    };
   }
 
-  export interface IModule<_IException> {
-    defaultException: _IException;
-    create: (...args) => _IException
-    check: (input: any) => false | _IException
+  export interface IConfig<_TExceptionKey extends string, _IException, _IMonitoringModule extends Expecteds.IMonitoringModule> {
+    exceptions: IExceptionsList<_TExceptionKey, _IException>;
+    monitoring: _IMonitoringModule;
   }
 
-  export interface IDefaultException {
-    status: number;
-    data: any;
-    message?: string;
+  export type IExceptionsList<_TExceptionKey extends string, _IException> = {
+    // Check
+    [ key in _TExceptionKey ]: (data)=>_IException
+    // [ key in _TExceptionKey ]: (data) => { status: number, key: key, data: any }
   }
 
 
-  export class Module<_IException> implements IModule<_IException> {
+        //////////////////
+        //              //
+        //    Module    //
+        //              //
+        //////////////////
 
-    constructor({create, check, defaultException}: IConfig<_IException>) {
-      this.create = create;
-      this.check = check;
-      this.defaultException = defaultException;
+
+  export class Module<
+    _IException,
+    _TExceptionKey extends string,
+    _IMonitoringModule extends Expecteds.IMonitoringModule
+    >
+  {
+    constructor({monitoring, exceptions}: IConfig<_TExceptionKey, _IException, _IMonitoringModule>) {
+      this.exceptions = exceptions;
+      this.monitoring = monitoring;
     }
 
-    defaultException: _IException;
+    exceptions: IExceptionsList<_TExceptionKey, _IException>;
+    monitoring: _IMonitoringModule;
 
-    create(id: string, data):_IException {
-      // const result: IException = {
-      //   status: 10001,
-      //   message: `Auth exception: ${ id }`,
-      //   data
-      // };
-      return this.defaultException;
+    cast(exceptionKey: _TExceptionKey, desc: string, data?: object): _IException {
+      console.log(`EXC: ${exceptionKey} / ${desc}`, data);
+      return this.exceptions[exceptionKey](data);
+    }
+
+    // Check if is exact
+    is(exceptionKey: _TExceptionKey, input): false | _IException {
+      return input?.status > 10000 ? input : false;
+    }
+
+    // Check if is exceptions at all
+    isAny(input): false | _IException {
+      return input?.status > 10000 ? input : false;
+    }
+
+        // Use notification service
+
+    monitor(exception: _IException) {
+      this.monitoring.send(exception)
+    }
+
+
+        // Old, replace it everywhere
+        // with exceptions or is / isAny
+
+
+    create(exceptionKey: _TExceptionKey, data, e: Error): _IException {
+      return this.exceptions[exceptionKey](data);
     };
 
     check(input:any): false | _IException {
-      return false;
+      return input?.status > 10000 ? input : false;
     }
 
   }
