@@ -2,16 +2,16 @@ import {
   AuthMethod
 } from "./mongo";
 import * as crypto from "crypto";
-import {Document} from 'mongoose';
-import {Expecteds} from "../Common/Expecteds";
+import {Exceptions, mExceptions} from "../Exceptions";
+import {mEmails} from "../Emails";
+import {IUser, mUsers} from "../Users";
 
 
 export namespace Auth {
-  interface IConfig<_IUser, _IException> {
-    users:      Expecteds.IUserModule<_IUser, _IException>;
-    emails:     Expecteds.IEmailModule<_IException>;
-    exceptions: Expecteds.IExceptionsModule<_IException>;
-  }
+
+  // interface IConfig<> {
+    // exceptions: Exceptions.Module;
+  // }
 
   export type TAuthType =
   // 'telegram' |
@@ -26,10 +26,7 @@ export namespace Auth {
 
   export type TAuthPair = { authType: TAuthType, authId: string };
 
-
-  export type TAuthPairWithCode = TAuthPair & {
-    code: string
-  }
+  export type TAuthPairWithCode = TAuthPair & { code: string };
 
 
 
@@ -41,32 +38,20 @@ export namespace Auth {
 
 
 
-  export class Module<_IUser extends Document, _IException> {
-    users: Expecteds.IUserModule<_IUser, _IException>;
-    emails: Expecteds.IEmailModule<_IException>;
-    exceptions: Expecteds.IExceptionsModule<_IException>;
-    // logger: any;
+  export class Module {
 
-    constructor({users, emails, exceptions}: IConfig<_IUser, _IException>) {
-      this.users = users;
-      this.emails = emails;
-      this.exceptions = exceptions;
-      // this.logger = logger || {};
-    }
-
-
-
-    async requestSignIn ({ authType, authId }: TAuthPair): Promise<TAuthPair | _IException> {
-
+    async requestSignIn ({ authType, authId }: TAuthPair): Promise<TAuthPair | Exceptions.IException> {
       const code = await this.createAuthCode(authType, authId);
-      if (this.exceptions.check(code)) {
-        return <_IException>code;
+      if (mExceptions.check(code)) {
+        return code as Exceptions.IException;
       }
 
       if (authType === authTypes.email) {
 
         // Uncomment this when GSuite is ready
         // And attach sending emails:
+
+        // Use mEmails here
 
         // const sendingResult = await sendMail(
         //   authId,
@@ -88,15 +73,15 @@ export namespace Auth {
 
 
 
-    // This is vulnerable place, since it return auth data.
+    // This is vulnerable place,
+    // since it return auth data.
     // Always check how it used.
-    async createAuthCode(authType: TAuthType, authId: string): Promise<string | _IException> {
+    async createAuthCode(authType: TAuthType, authId: string): Promise<string | Exceptions.IException> {
       try {
-
         // Validate authType first and that authId is of proper format
         // Probably better to move this to sendCodeMethod?
         if (!this.validateAuthData(authType, authId)) {
-          return this.exceptions.create('qerbrt', { authType, authId });
+          return mExceptions.cast('wrongParams', 'createAuthCode-1', { authType, authId });
         }
 
         const code = crypto.randomBytes(8).toString('hex').substr(0, 5);
@@ -116,8 +101,7 @@ export namespace Auth {
         return code;
 
       } catch (e) {
-        console.log('createAuthCode error details:\n ', e, '\n');
-        return this.exceptions.create('createAuthCode ertg', { authType, authId });
+        return mExceptions.catched('createAuthCode ertg', { authType, authId }, e);
       }
     };
 
@@ -146,10 +130,10 @@ export namespace Auth {
 
 
 
-    async getUserByAuthCode ({ authType, authId, code }: TAuthPairWithCode): Promise<_IUser | _IException> {
+    async getUserByAuthCode({ authType, authId, code }: TAuthPairWithCode): Promise< IUser | Exceptions.IException> {
       try {
         if (! authTypes[ authType ] || ! code) {
-          return this.exceptions.create('getUserByAuthCode wrong params', { authType, authId, code });
+          return mExceptions.cast('wrongParams', 'getUserByAuthCode-1', { authType, authId, code });
         }
 
         // Try to find code
@@ -158,33 +142,35 @@ export namespace Auth {
           { code: null });
 
         if (!authMethod) {
-          return this.exceptions.create('getUserByAuthCode authMethod not found', { authType, authId, code });
+          return mExceptions.cast('notFound', 'getUserByAuthCode-2', { authType, authId, code });
         }
 
         if (authMethod.userId === null) {
           // If user is not assigned (first login)
           // Create user and get his _id to save in session below
 
-          const createdUser = await this.users.create({});
-          if (this.exceptions.check(createdUser)) {
+          const createdUser = await mUsers.create({});
+          if (mExceptions.isAny(createdUser)) {
             return createdUser;
           }
           await AuthMethod.findOneAndUpdate(
             { _id: authMethod._id },
-            { userId: (<_IUser>createdUser)._id });
-          return <_IUser>createdUser;
+            { userId: (<IUser>createdUser)._id });
+          return <IUser>createdUser;
         }
 
-        // Find the user at least to make sure it exists
-
-        const existingUser = await this.users.getById(authMethod.userId);
-        if (this.exceptions.check(existingUser)) {
-          return existingUser; // As error, just to keep structure
+        // Find the user at least
+        // to make sure it exists
+        const existingUser = await mUsers.getById(authMethod.userId);
+        if (mExceptions.check(existingUser)) {
+          // As error, just to keep structure
+          return existingUser as Exceptions.IException;
         }
-        return existingUser;
+
+        return existingUser as IUser;
 
       } catch (e) {
-        return this.exceptions.create('-getUserByAuthCode-1-32-', { authType, authId, code });
+        return mExceptions.catched('-getUserByAuthCode-1-32-', { authType, authId, code }, e);
       }
 
     };
@@ -215,3 +201,4 @@ export namespace Auth {
 }
 
 
+export const mAuth = new Auth.Module();

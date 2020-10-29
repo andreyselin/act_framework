@@ -69,11 +69,11 @@ export namespace Users {
       }
     }
 
-    async getById(_id: string): Promise<_IUser | null | Exceptions.IException> {
+    async getById(_id: string): Promise<_IUser | Exceptions.IException> {
       try {
-        return  await this.User.findById(_id);
+        return await this.User.findById(_id) || mExceptions.cast('notFound', 'Users.getById-1');
       } catch (e) {
-        return mExceptions.catched('user.getById', {_id}, e);
+        return mExceptions.catched('Users.getById-2', {_id}, e);
       }
     }
 

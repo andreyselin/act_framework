@@ -1,6 +1,5 @@
 import {Mongo} from "../modules/Common/Mongo";
 import {env} from "../env";
-import {Auth} from "../modules/Auth";
 import {Express} from "../modules/Common/Express";
 import {initExpressControllers} from "../controllers";
 import {Sessions} from "../modules/Sessions";
@@ -11,13 +10,12 @@ import {mMonitoring} from "../modules/Monitoring";
 import {mExceptions} from "../modules/Exceptions";
 import {mEmails} from "../modules/Emails";
 import {mUsers} from "../modules/Users";
+import {mAuth} from "../modules/Auth";
 
     // Declare modules
     // They dont require mongo client started before
     // setting up mongo entities
 
-// const users = initUsersModule(exceptions);
-// const auth = new Auth.Module<IUser, IException>({ exceptions, users, emails });
 // const sessions = new Sessions.Module<IUser, IException>({users, exceptions});
 // const mongo = new Mongo.Client({ url: env.db.url });
 // const express = new Express.Module<IUser>({ port: env.express.port, sessions, exceptions });
@@ -31,7 +29,7 @@ export const app = {
   mExceptions,
   mEmails,
   mUsers,
-  // auth,
+  mAuth,
   // sessions,
   // mongo,
   // express,
