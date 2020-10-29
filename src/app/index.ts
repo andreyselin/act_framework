@@ -2,20 +2,20 @@ import {Mongo} from "../modules/Common/Mongo";
 import {env} from "../env";
 import {initUsersModule, IUser} from "../models/UserModel";
 import {Auth} from "../modules/Auth";
-import {Emails} from "../modules/Emails";
 import {Express} from "../modules/Common/Express";
 import {initExpressControllers} from "../controllers";
 import {Sessions} from "../modules/Sessions";
 import {initSubscriptionModule} from "../models/SubscriptionModel";
 import {Servers} from "../modules/FPS/Servers";
-import {mMonitoring, Monitoring} from "../modules/Monitoring";
+
+import {mMonitoring} from "../modules/Monitoring";
 import {mExceptions} from "../modules/Exceptions";
+import {mEmails} from "../modules/Emails";
 
     // Declare modules
     // They dont require mongo client started before
     // setting up mongo entities
 
-// const emails = new Emails.Module<IException, typeof exceptions>({exceptions});
 // const users = initUsersModule(exceptions);
 // const auth = new Auth.Module<IUser, IException>({ exceptions, users, emails });
 // const sessions = new Sessions.Module<IUser, IException>({users, exceptions});
@@ -29,7 +29,7 @@ import {mExceptions} from "../modules/Exceptions";
 export const app = {
   mMonitoring,
   mExceptions,
-  // emails,
+  mEmails,
   // users,
   // auth,
   // sessions,

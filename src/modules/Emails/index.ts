@@ -1,20 +1,16 @@
-import {Expecteds} from "../Common/Expecteds";
+import {mExceptions} from "../Exceptions";
+
 
 export namespace Emails {
-  export class Module<_IException> {
-
-    exceptions: Expecteds.IExceptionsModule<_IException>;
-
-    constructor({exceptions}) {
-      this.exceptions = exceptions;
-    }
-
+  export class Module<_IException, _IExceptionsModule> {
     async send(params) {
       console.log('sending the shit');
       if(1==1){
-        return this.exceptions.create('shit');
+        return mExceptions.cast('general', 'tmp', {});
       }
       return true;
     }
   }
 }
+
+export const mEmails = new Emails.Module();
