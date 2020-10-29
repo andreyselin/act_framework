@@ -1,18 +1,18 @@
 import {requestSignInController, submitAuthController} from "./auth";
-import {app} from "../app";
 import {pingController} from "./dev";
 import {getConnectionInfoController} from "./connection";
+import {mExpress} from "../modules/Common/Express";
 
 export const initExpressControllers = () => {
 
   // Auth
-  app.express.addExternalController('post',  '/sign-in/request', requestSignInController);
-  app.express.addExternalController('post',  '/sign-in/submit',  submitAuthController);
+  mExpress.addExternalController('post',  '/sign-in/request', requestSignInController);
+  mExpress.addExternalController('post',  '/sign-in/submit',  submitAuthController);
 
   // Dev
-  app.express.addExternalController('post',  '/dev/ping',        pingController);
+  mExpress.addExternalController('post',  '/dev/ping',        pingController);
 
   // Server
-  app.express.addInternalController('get',  '/connection/getInfo',  getConnectionInfoController);
+  mExpress.addInternalController('get',  '/connection/getInfo',  getConnectionInfoController);
 
 };
