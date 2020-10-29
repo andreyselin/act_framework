@@ -78,8 +78,8 @@ export namespace Exceptions {
         // with exceptions or is / isAny
 
 
-    create(exceptionKey: TExceptionKey, data, e: Error): IException {
-      return this.exceptions[exceptionKey](data);
+    catched(desc: string, data, e: Error): IException {
+      return this.exceptions.general(data);
     };
 
     check(input:any): false | IException {
