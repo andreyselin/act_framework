@@ -1,4 +1,4 @@
-import {Expecteds} from "../Common/Expecteds";
+import {mMonitoring} from "../Monitoring";
 
 export namespace Exceptions {
 
@@ -10,36 +10,32 @@ export namespace Exceptions {
       ////////////////////
 
 
-  export namespace Default {
-    export interface IException {
-      status: number;
-      key: string;
-      data: any;
-    }
-    export type TExceptionKey
-      = 'general'
-      | 'wrongParams'
-      | 'notAllowed'
-      | 'notFound';
-
-    export const exceptions: IExceptionsList<TExceptionKey, IException> = {
-      general:       data => ({ status: 10001,   key: 'general',        data }),
-      notAllowed:    data => ({ status: 10002,   key: 'notAllowed',     data }),
-      wrongParams:   data => ({ status: 10003,   key: 'wrongParams',    data }),
-      notFound:      data => ({ status: 10004,   key: 'notFound',       data }),
-    };
+  export interface IException {
+    status: number;
+    key: string;
+    data: any;
   }
 
-  export interface IConfig<_TExceptionKey extends string, _IException, _IMonitoringModule extends Expecteds.IMonitoringModule> {
-    exceptions: IExceptionsList<_TExceptionKey, _IException>;
-    monitoring: _IMonitoringModule;
-  }
+  export type TExceptionKey
+    = 'general'
+    | 'wrongParams'
+    | 'notAllowed'
+    | 'notFound';
 
-  export type IExceptionsList<_TExceptionKey extends string, _IException> = {
+  export const exceptions: IExceptionsList = {
+    general:       data => ({ status: 10001,   key: 'general',        data }),
+    notAllowed:    data => ({ status: 10002,   key: 'notAllowed',     data }),
+    wrongParams:   data => ({ status: 10003,   key: 'wrongParams',    data }),
+    notFound:      data => ({ status: 10004,   key: 'notFound',       data }),
+  };
+
+
+  export type IExceptionsList = {
     // Check
-    [ key in _TExceptionKey ]: (data)=>_IException
-    // [ key in _TExceptionKey ]: (data) => { status: number, key: key, data: any }
-  }
+    // [key in TExceptionKey]: (data) => IException
+    [ key in TExceptionKey ]: (data) => { status: number, key: key, data: any }
+  };
+
 
 
         //////////////////
@@ -49,38 +45,31 @@ export namespace Exceptions {
         //////////////////
 
 
-  export class Module<
-    _IException,
-    _TExceptionKey extends string,
-    _IMonitoringModule extends Expecteds.IMonitoringModule
-    >
+  export class Module
+  // <_TExceptionKey extends TExceptionKey, _IException extends IException>
   {
-    constructor({monitoring, exceptions}: IConfig<_TExceptionKey, _IException, _IMonitoringModule>) {
-      this.exceptions = exceptions;
-      this.monitoring = monitoring;
-    }
 
-    exceptions: IExceptionsList<_TExceptionKey, _IException>;
-    monitoring: _IMonitoringModule;
+    exceptions = exceptions;
+    monitoring = mMonitoring;
 
-    cast(exceptionKey: _TExceptionKey, desc: string, data?: object): _IException {
+    cast(exceptionKey: TExceptionKey, desc: string, data?: object): IException {
       console.log(`EXC: ${exceptionKey} / ${desc}`, data);
       return this.exceptions[exceptionKey](data);
     }
 
     // Check if is exact
-    is(exceptionKey: _TExceptionKey, input): false | _IException {
+    is(exceptionKey: TExceptionKey, input): false | IException {
       return input?.status > 10000 ? input : false;
     }
 
     // Check if is exceptions at all
-    isAny(input): false | _IException {
+    isAny(input): false | IException {
       return input?.status > 10000 ? input : false;
     }
 
         // Use notification service
 
-    monitor(exception: _IException) {
+    monitor(exception: IException) {
       this.monitoring.send(exception)
     }
 
@@ -89,13 +78,15 @@ export namespace Exceptions {
         // with exceptions or is / isAny
 
 
-    create(exceptionKey: _TExceptionKey, data, e: Error): _IException {
+    create(exceptionKey: TExceptionKey, data, e: Error): IException {
       return this.exceptions[exceptionKey](data);
     };
 
-    check(input:any): false | _IException {
+    check(input:any): false | IException {
       return input?.status > 10000 ? input : false;
     }
 
   }
 }
+
+export const mExceptions = new Exceptions.Module();
