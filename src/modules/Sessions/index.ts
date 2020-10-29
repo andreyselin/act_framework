@@ -1,16 +1,11 @@
 import * as crypto from "crypto";
-import {Expecteds} from "../Common/Expecteds";
 import {Document, model, Model, Schema} from "mongoose";
+import {Exceptions, mExceptions} from "../Exceptions";
+import {IUser, mUsers} from "../Users";
 
 export namespace Sessions {
 
-  interface IConfig<_IUser, _IException> {
-    users: Expecteds.IUserModule<_IUser, _IException>;
-    exceptions: Expecteds.IExceptionsModule<_IException>;
-  }
-
   interface IAuthSession extends Document {
-
     userId: string
     token: string
 
@@ -20,7 +15,6 @@ export namespace Sessions {
   }
 
   const AuthSessionSchema: Schema = new Schema({
-
     userId: String,
     token: String,
     createdAt: Date,
@@ -46,17 +40,9 @@ export namespace Sessions {
 
 
 
-  export class Module<_IUser, _IException> {
+  export class Module {
 
-    users: Expecteds.IUserModule<_IUser, _IException>;
-    exceptions: Expecteds.IExceptionsModule<_IException>;
-
-    constructor({users, exceptions}: IConfig<_IUser, _IException>) {
-      this.users = users;
-      this.exceptions = exceptions;
-    }
-
-    async create (userId: string): Promise<string | _IException> {
+    async create (userId: string): Promise<string | Exceptions.IException> {
       try {
         const createdAt = new Date();
         const token = crypto.randomBytes(32).toString('hex');
@@ -69,32 +55,37 @@ export namespace Sessions {
         await session.save();
         return token;
       } catch (e) {
-        return this.exceptions.create('Sessions.module.create.catched', '-SessionService-create-1-rgn-', e);
+        return mExceptions.catched('Sessions.module.create.catched', {userId}, e);
       }
     }
 
     // Checking
-    async getUserIfTokenIsActive (token: string | null): Promise<_IUser | _IException> {
-      if (!token) {
-        return this.exceptions.defaultException;
+    async getUserIfTokenIsActive (token: string | null): Promise<IUser | Exceptions.IException> {
+      try {
+        if (!token) {
+          return mExceptions.cast('wrongParams', 'noTokenProvided');
+        }
+        const updatedAt = {
+          // $gt: new Date(new Date().getTime() - 1000 * 60 * 18)
+          $gt: new Date(new Date().getTime() - sessionConstants.aliveTime)
+        };
+        const session = await AuthSession.findOneAndUpdate(
+          { token, updatedAt },
+          { updatedAt: new Date() });
+
+        if (!session) {
+          return mExceptions.cast('notFound', 'Sessions.module.getUser.session', {token});
+        }
+
+        const user = await mUsers.getById(session.userId);
+
+        return user; // as _IUser and _IException;
+      } catch (e) {
+        return mExceptions.catched('Sessions.module.getUserIfTokenIsActive', {token}, e);
       }
-      const updatedAt = {
-        // $gt: new Date(new Date().getTime() - 1000 * 60 * 18)
-        $gt: new Date(new Date().getTime() - sessionConstants.aliveTime)
-      };
-      const session = await AuthSession.findOneAndUpdate(
-        { token, updatedAt },
-        { updatedAt: new Date() });
-
-      if (!session) {
-        return this.exceptions.create('Sessions.module.getUser.sessionNotFound', {token});
-      }
-
-      const user = await this.users.getById(session.userId);
-
-      return user; // as _IUser and _IException;
     }
-
   }
 
 }
+
+export const mSessions = new Sessions.Module();

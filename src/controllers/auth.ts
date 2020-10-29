@@ -1,15 +1,16 @@
 import {app} from "../app";
-import {IException} from "../models/ExceptionModel";
 import {Express} from "../modules/Common/Express";
-import {Auth} from "../modules/Auth";
-import {IUser} from "../models/UserModel";
+import {Auth, mAuth} from "../modules/Auth";
+import {IUser} from "../modules/Users";
+import {Exceptions, mExceptions} from "../modules/Exceptions";
+import {mSessions} from "../modules/Sessions";
 
 export const requestSignInController: Express.TExternalController = async (params) => {
   const { authType, authId } = params;
 
-  const sendCodeResult = await app.auth.requestSignIn({ authType, authId });
-  if (app.exceptions.check(sendCodeResult)) {
-    throw sendCodeResult as IException;
+  const sendCodeResult = await mAuth.requestSignIn({ authType, authId });
+  if (mExceptions.isAny(sendCodeResult)) {
+    throw sendCodeResult as Exceptions.IException;
   }
 
   return {
@@ -21,14 +22,14 @@ export const requestSignInController: Express.TExternalController = async (param
 export const submitAuthController: Express.TExternalController = async (params) => {
   const { authType, authId, code }: Auth.TAuthPairWithCode = params;
 
-  const user = await app.auth.getUserByAuthCode({ authType, authId, code });
-  if (app.exceptions.check(user)) {
-    throw user as IException;
+  const user = await mAuth.getUserByAuthCode({ authType, authId, code });
+  if (mExceptions.isAny(user)) {
+    throw user as Exceptions.IException;
   }
 
   // Create session with user id
-  const token = await app.sessions.create((user as IUser)._id);
-  if (app.exceptions.check(token)) {
+  const token = await mSessions.create((user as IUser)._id);
+  if (mExceptions.isAny(token)) {
     throw token;
   }
 
