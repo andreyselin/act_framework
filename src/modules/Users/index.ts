@@ -1,6 +1,7 @@
 import {Document, model, Model, Schema} from "mongoose";
 import shortid from 'shortid';
 import {Exceptions, mExceptions} from "../Exceptions";
+import {IExtendedUser, schemaConfig} from "./extension";
 
 export namespace Users {
 
@@ -81,3 +82,9 @@ export namespace Users {
 
   }
 }
+
+// If types circ dep error occurs,
+// make this (and extension.ts) part index.ts, and move other stuff to ./default.ts
+export interface IUser extends IExtendedUser {}
+
+export const mUsers = new Users.Module<IUser>({schemaConfig});

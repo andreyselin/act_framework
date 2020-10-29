@@ -1,6 +1,5 @@
 import {Mongo} from "../modules/Common/Mongo";
 import {env} from "../env";
-import {mUsers} from "../models/UserModel";
 import {Auth} from "../modules/Auth";
 import {Express} from "../modules/Common/Express";
 import {initExpressControllers} from "../controllers";
@@ -11,6 +10,7 @@ import {Servers} from "../modules/FPS/Servers";
 import {mMonitoring} from "../modules/Monitoring";
 import {mExceptions} from "../modules/Exceptions";
 import {mEmails} from "../modules/Emails";
+import {mUsers} from "../modules/Users";
 
     // Declare modules
     // They dont require mongo client started before
@@ -44,9 +44,9 @@ export const app = {
     // to start app and
     // ONLY THEN operate
 
-export async function startApp() {
-  await app.mongo.listen();
-  // Only now, after mongo started, start express
-  initExpressControllers();
-  app.express.listen();
-}
+// export async function startApp() {
+//   await app.mongo.listen();
+//   // Only now, after mongo started, start express
+//   initExpressControllers();
+//   app.express.listen();
+// }
