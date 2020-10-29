@@ -1,6 +1,6 @@
 import {Mongo} from "../modules/Common/Mongo";
 import {env} from "../env";
-import {initUsersModule, IUser} from "../models/UserModel";
+import {mUsers} from "../models/UserModel";
 import {Auth} from "../modules/Auth";
 import {Express} from "../modules/Common/Express";
 import {initExpressControllers} from "../controllers";
@@ -30,7 +30,7 @@ export const app = {
   mMonitoring,
   mExceptions,
   mEmails,
-  // users,
+  mUsers,
   // auth,
   // sessions,
   // mongo,

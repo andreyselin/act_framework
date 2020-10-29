@@ -1,14 +1,12 @@
-import {Expecteds} from "../Common/Expecteds";
 import {Document, model, Model, Schema} from "mongoose";
 import shortid from 'shortid';
+import {Exceptions, mExceptions} from "../Exceptions";
 
 export namespace Users {
 
-  export interface IModule<_IUser, _IException> {
-    exceptionsModule: Expecteds.IExceptionsModule<_IException>;
-    create:  (params: { user?: _IUser, config?: any }) => Promise<_IUser | _IException>;
-    getById: (_id: string) => Promise<_IUser | _IException>;
-  }
+  // Keep user module its prototype
+  // since user is quite different
+  // in different projects
 
   export interface IDefaultUser extends Document {
     _id: string;
@@ -16,11 +14,9 @@ export namespace Users {
     updatedAt: Date;
   }
 
-  export interface IModuleConfig<_IUser, _IException> {
+  export interface IModuleConfig<_IUser> {
     schemaConfig: object;
-    exceptionsModule: Expecteds.IExceptionsModule<_IException>;
   }
-
 
   export const defaultUserSchemaConfig = {
     _id: {
@@ -45,21 +41,22 @@ export namespace Users {
     return model<_IUser, IUserModel>('user', UserSchema);
   }
 
-  //////////////////
-  //              //
-  //    Module    //
-  //              //
-  //////////////////
+      //////////////////
+      //              //
+      //    Module    //
+      //              //
+      //////////////////
 
 
-  export class Module<_IUser extends IDefaultUser, _IException> implements IModule<_IUser, _IException> {
+  // Will require user to explicitly passed here,
+  // since we dont know what is his properties
+
+  export class Module<_IUser extends IDefaultUser> {
 
     User: Model<_IUser>;
-    exceptionsModule: Expecteds.IExceptionsModule<_IException>;
 
-    constructor({schemaConfig, exceptionsModule}: IModuleConfig<_IUser, _IException>) {
+    constructor({schemaConfig}: IModuleConfig<_IUser>) {
       this.User = prepareUserInMongo<_IUser>(schemaConfig);
-      this.exceptionsModule = exceptionsModule;
     }
 
     async create(params) {
@@ -67,22 +64,20 @@ export namespace Users {
         const newUser = new this.User(params.user);
         return await newUser.save();
       } catch (e) {
-        return this.exceptionsModule.create();
+        return mExceptions.catched('user.create', params, e);
       }
     }
 
-    async getById(_id: string) {
-      const result = await this.User.findById(_id);
-      if (!result) {
-        return this.exceptionsModule.create()
+    async getById(_id: string): Promise<_IUser | null | Exceptions.IException> {
+      try {
+        return  await this.User.findById(_id);
+      } catch (e) {
+        return mExceptions.catched('user.getById', {_id}, e);
       }
-      return result;
     }
 
     async updateBy() {
-
     }
 
   }
-
 }
