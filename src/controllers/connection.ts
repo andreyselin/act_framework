@@ -3,13 +3,11 @@ import {hoursFromDays} from "../utilities";
 import {IUser} from "../modules/Users";
 import {mSubscriptions} from "../modules/Subscriptions";
 
-export const getConnectionInfoController: Express.TInternalController<IUser> = async (user: IUser, params) => {
+export const getDashboardController: Express.TInternalController<IUser> = async (user: IUser, params) => {
 
-  const data = {
+  // Subscription:
+  // used only for measuring time
 
-  };
-
-  // Get or create here
   const subscription = await mSubscriptions.getOrSubscribeWith(
     user._id,
     async ()=>({
@@ -18,6 +16,10 @@ export const getConnectionInfoController: Express.TInternalController<IUser> = a
       data: {} // Todo
     })
   );
+
+  // Connection
+  // All logic is here
+
 
 
   return {

@@ -1,6 +1,6 @@
 import {requestSignInController, submitAuthController} from "./auth";
 import {pingController} from "./dev";
-import {getConnectionInfoController} from "./connection";
+import {getDashboardController} from "./connection";
 import {mExpress} from "../modules/Common/Express";
 
 export const initExpressControllers = () => {
@@ -13,6 +13,6 @@ export const initExpressControllers = () => {
   mExpress.addExternalController('post',  '/dev/ping',        pingController);
 
   // Server
-  mExpress.addInternalController('get',  '/connection/getInfo',  getConnectionInfoController);
+  mExpress.addInternalController('get',  '/connection/getInfo',  getDashboardController);
 
 };

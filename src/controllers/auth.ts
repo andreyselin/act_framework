@@ -15,9 +15,13 @@ export const requestSignInController: Express.TExternalController = async (param
 
   return {
     status: 0,
+    key: 'ok',
     data: sendCodeResult
   };
 };
+
+
+
 
 export const submitAuthController: Express.TExternalController = async (params) => {
   const { authType, authId, code }: Auth.TAuthPairWithCode = params;
@@ -35,6 +39,7 @@ export const submitAuthController: Express.TExternalController = async (params) 
 
   return {
     status: 0,
+    key: 'ok',
     data: { token }
   }
 };
